@@ -43,6 +43,14 @@ dependencies:
   # lo clasifica (Módulo 3).
   speech_to_text: ^7.0.0
 
+  # Notificaciones push (Firebase Cloud Messaging): avisos cuando el
+  # trámite inicia, cambia de área o finaliza.
+  firebase_core: ^4.1.0
+  firebase_messaging: ^16.0.0
+  # Muestra la notificación nativa cuando el push llega con la app ABIERTA
+  # (en primer plano FCM no la pinta solo).
+  flutter_local_notifications: ^19.4.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

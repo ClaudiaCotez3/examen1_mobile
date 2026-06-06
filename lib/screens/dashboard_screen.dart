@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../models.dart';
 import '../portal_service.dart';
+import '../push_service.dart';
 import '../theme.dart';
 import 'login_screen.dart';
 import 'new_case_screen.dart';
+import 'notifications_screen.dart';
 
 /// Dashboard del cliente: sus trámites con el flujo en el que se
 /// encuentran — línea de tiempo por áreas (igual que la vista "Consultas"
@@ -24,6 +26,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _refreshing = false;
   String? _error;
   String? _expandedCaseId;
+  int _unread = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Push: registra este dispositivo para avisos del trámite y refresca
+    // la campanita cuando llega una notificación con la app abierta.
+    PushService.instance.registerWithBackend();
+    PushService.instance.onNotificationReceived = () {
+      if (mounted) _loadUnread();
+    };
+    _loadUnread();
+  }
+
+  @override
+  void dispose() {
+    PushService.instance.onNotificationReceived = null;
+    super.dispose();
+  }
+
+  Future<void> _loadUnread() async {
+    try {
+      final items = await portal.getNotifications();
+      if (mounted) {
+        setState(() => _unread = items.where((n) => !n.read).length);
+      }
+    } catch (_) {
+      /* la campanita no es crítica */
+    }
+  }
+
+  Future<void> _openNotifications() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+    );
+    await _loadUnread();
+  }
 
   Future<void> _refresh() async {
     setState(() {
@@ -75,6 +114,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
         actions: [
+          // Campanita de notificaciones con contador de no leídas
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                tooltip: 'Notificaciones',
+                onPressed: _openNotifications,
+                icon: const Icon(Icons.notifications_none,
+                    color: AppColors.slate),
+              ),
+              if (_unread > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 5, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFDC2626),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    constraints: const BoxConstraints(minWidth: 17),
+                    child: Text(
+                      _unread > 9 ? '9+' : '$_unread',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             tooltip: 'Actualizar',
             onPressed: _refreshing ? null : _refresh,

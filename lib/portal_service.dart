@@ -145,6 +145,41 @@ class PortalService {
     return body['code']?.toString() ?? '';
   }
 
+  // ── Notificaciones push ───────────────────────────────────────────────
+
+  /// Registra el token FCM del dispositivo, atado al cliente logueado.
+  Future<void> registerDeviceToken(String token) async {
+    final s = _requireSession();
+    await _postJson('$apiBase/device-token', {
+      'email': s.email,
+      'ci': _ci ?? s.ci,
+      'token': token,
+      'platform': 'android',
+    });
+  }
+
+  /// Últimas notificaciones del cliente (campanita / historial).
+  Future<List<MobileNotification>> getNotifications() async {
+    final s = _requireSession();
+    final uri = Uri.parse('$apiBase/notifications').replace(
+      queryParameters: {'email': s.email, 'ci': _ci ?? s.ci},
+    );
+    final body = await _getJson(uri.toString());
+    return (body as List)
+        .whereType<Map<String, dynamic>>()
+        .map(MobileNotification.fromJson)
+        .toList();
+  }
+
+  /// Marca todas las notificaciones como leídas.
+  Future<void> markNotificationsRead() async {
+    final s = _requireSession();
+    await _postJson('$apiBase/notifications/mark-read', {
+      'email': s.email,
+      'ci': _ci ?? s.ci,
+    });
+  }
+
   // ── Internals ─────────────────────────────────────────────────────────
 
   MobileSession _requireSession() {

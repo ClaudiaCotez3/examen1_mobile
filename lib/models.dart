@@ -213,3 +213,41 @@ class IntakeAlternative {
         policyName: _sn(json['policyName']),
       );
 }
+
+/// Notificación del cliente (campanita): inicio, cambio de área o
+/// finalización de uno de sus trámites.
+class MobileNotification {
+  final String id;
+  final String? caseId;
+  final String? caseCode;
+
+  /// CASE_STARTED | AREA_CHANGED | CASE_FINISHED
+  final String type;
+  final String title;
+  final String message;
+  final String? createdAt;
+  final bool read;
+
+  const MobileNotification({
+    required this.id,
+    this.caseId,
+    this.caseCode,
+    required this.type,
+    required this.title,
+    required this.message,
+    this.createdAt,
+    required this.read,
+  });
+
+  factory MobileNotification.fromJson(Map<String, dynamic> json) =>
+      MobileNotification(
+        id: _s(json['id']),
+        caseId: _sn(json['caseId']),
+        caseCode: _sn(json['caseCode']),
+        type: _s(json['type']).toUpperCase(),
+        title: _s(json['title']),
+        message: _s(json['message']),
+        createdAt: _sn(json['createdAt']),
+        read: json['read'] == true,
+      );
+}

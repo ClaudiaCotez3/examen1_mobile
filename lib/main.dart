@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'push_service.dart';
 import 'screens/login_screen.dart';
 import 'theme.dart';
 
@@ -11,7 +12,11 @@ import 'theme.dart';
 ///   - iniciar un trámite nuevo describiendo su necesidad en lenguaje
 ///     natural — la IA identifica el trámite adecuado y carga su
 ///     formulario (Módulo 3).
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Push (FCM): tolerante — si Firebase aún no está configurado
+  // (google-services.json ausente) la app arranca igual, sin push.
+  await PushService.instance.init();
   runApp(const ClientePortalApp());
 }
 
