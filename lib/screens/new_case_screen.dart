@@ -517,6 +517,35 @@ class _NewCaseScreenState extends State<NewCaseScreen> {
                   ),
                 ),
             ],
+            // Ningún trámite coincidió y no hay alternativas: aviso explícito
+            // para que el cliente sepa que debe reformular su necesidad
+            // (el `reply` de la IA ya explica el porqué, arriba).
+            if (result.policyId == null && result.alternatives.isEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceSoft,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.search_off, size: 18, color: AppColors.muted),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'No encontramos un trámite que coincida con tu '
+                        'solicitud. Intenta describirla con otras palabras o '
+                        'con más detalle.',
+                        style:
+                            TextStyle(fontSize: 12.5, color: AppColors.slateSoft),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
