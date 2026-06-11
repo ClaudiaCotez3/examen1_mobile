@@ -33,7 +33,7 @@ class PortalService {
   /// Para teléfono FÍSICO: la IP de tu laptop en la red Wi-Fi.
   /// Vuelve a ponerlo en `null` si usas emulador o cambia de red
   /// (verifica tu IP con `ipconfig` → "Dirección IPv4").
-  static String? hostOverride = '192.168.0.11';
+  static String? hostOverride = '192.168.0.8';
 
   static String get host {
     final manual = hostOverride?.trim();
