@@ -102,7 +102,10 @@ class PortalService {
   }
 
   Future<List<MobilePolicy>> listPolicies() async {
-    final body = await _getJson('$apiBase/policies');
+    final uri = Uri.parse('$apiBase/policies').replace(
+      queryParameters: _customerCreds(),
+    );
+    final body = await _getJson(uri.toString());
     return (body as List)
         .whereType<Map<String, dynamic>>()
         .map(MobilePolicy.fromJson)
@@ -110,8 +113,21 @@ class PortalService {
   }
 
   Future<MobilePolicy> getPolicy(String policyId) async {
-    final body = await _getJson('$apiBase/policies/$policyId');
+    final uri = Uri.parse('$apiBase/policies/$policyId').replace(
+      queryParameters: _customerCreds(),
+    );
+    final body = await _getJson(uri.toString());
     return MobilePolicy.fromJson(body);
+  }
+
+  /// Credenciales de sesión como query params, o null si es invitado (sin
+  /// sesión). Con ellas el backend devuelve el formulario inicial SIN los
+  /// campos reservados cliente_*: a un cliente ya registrado no se le piden
+  /// datos que ya conocemos. El invitado sí los recibe (son su registro).
+  Map<String, String>? _customerCreds() {
+    final s = session;
+    if (s == null) return null;
+    return {'email': s.email, 'ci': _ci ?? s.ci};
   }
 
   /// Inicia el trámite; devuelve el código generado (ej. "CASE-AB12CD34").
